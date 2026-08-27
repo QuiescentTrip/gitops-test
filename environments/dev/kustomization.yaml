@@ -10,4 +10,4 @@ resources:
 images:
   - name: hopeful-api
     newName: ghcr.io/quiescenttrip/gitops-test/hopeful-api
-    newTag: c6926e2
+    newTag: 271a399
