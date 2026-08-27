@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hopeful-api-config
+  namespace: gitops-demo
+  labels:
+    app.kubernetes.io/name: hopeful-api
+data:
+  APP_ENV: dev
+  CLOUD_PROVIDER: mock-gcp
+  GCP_REGION: local-kind

@@ -1,0 +1,4 @@
+cluster_name        = "hopeful-gitops"
+kube_context        = "kind-hopeful-gitops"
+mock_gcp_project_id = "hopeful-gitops-dev"
+mock_gcp_region     = "europe-north1"

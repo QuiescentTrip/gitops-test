@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Test API
+        working-directory: app
+        run: npm test
+
+      - name: Build and push image
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          short_sha="${GITHUB_SHA::7}"
+          image="ghcr.io/${GITHUB_REPOSITORY,,}/hopeful-api"
+
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build -t "$image:$short_sha" -t "$image:latest" app
+          docker push "$image:$short_sha"
+          docker push "$image:latest"
+
+          node .github/scripts/update-image.mjs "$image" "$short_sha"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if ! git diff --quiet -- environments/dev/kustomization.yaml; then
+            git add environments/dev/kustomization.yaml
+            git commit -m "chore: promote hopeful-api $short_sha [skip ci]"
+            git push
+          fi
