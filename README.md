@@ -145,5 +145,3 @@ packages and contents. The included workflow sets the job permissions it needs.
 ```
 
 That deletes only the `hopeful-gitops` kind cluster.
-# gitops-test
-# gitops-test
